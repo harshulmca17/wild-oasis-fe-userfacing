@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import CabinCard from "@/app/_components/CabinCard";
 
 export default function Page() {

@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import { XMarkIcon } from '@heroicons/react/24/solid';
 import { format } from 'date-fns';
 

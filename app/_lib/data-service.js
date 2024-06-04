@@ -2,7 +2,7 @@ import { eachDayOfInterval } from 'date-fns';
 
 /////////////
 // GET
-
+const BACKEND_ENDPOINT = process.env.BACKEND_ENDPOINT;
 export async function getCabin(id) {
   const { data, error } = await supabase
     .from('cabins')
@@ -34,19 +34,17 @@ export async function getCabinPrice(id) {
   return data;
 }
 
-export const getCabins = async function () {
-  const { data, error } = await supabase
-    .from('cabins')
-    .select('id, name, maxCapacity, regularPrice, discount, image')
-    .order('name');
+export async function getCabins() {
+ 
+  const res = await fetch(`${BACKEND_ENDPOINT}/cabins`);
 
-  if (error) {
-    console.error(error);
-    throw new Error('Cabins could not be loaded');
+  if (!res.ok) {
+    throw new Error("Cabins could not be loaded");
   }
 
-  return data;
-};
+  const data = await res.json();
+  return data?.result ?? [];
+}
 
 // Guests are uniquely identified by their email address
 export async function getGuest(email) {
@@ -137,10 +135,10 @@ export async function getSettings() {
 export async function getCountries() {
   try {
     const res = await fetch(
-      'https://restcountries.com/v2/all?fields=name,flag'
+      'http://hk-alb2-47b2d838154cd58f.elb.ap-south-1.amazonaws.com/getCountries'
     );
     const countries = await res.json();
-    return countries;
+    return countries?.result ?? [];
   } catch {
     throw new Error('Could not fetch countries');
   }

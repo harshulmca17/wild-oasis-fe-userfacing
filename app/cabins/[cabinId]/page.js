@@ -23,6 +23,7 @@ export async function generateMetadata({ params }) {
 // }
 export default async function Page({ params }) {
   const cabin = await getCabin(params?.cabinId);
+  console.log(cabin,"cabin")
   const { id, name, maxCapacity, regularPrice, discount, image, description } =
     cabin;
   return (

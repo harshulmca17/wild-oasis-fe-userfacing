@@ -5,8 +5,7 @@ import Link from "next/link";
 const SUPABASE_BASE_URL = process.env.SUPABASE_BASE_URL;
 function CabinCard({ cabin }) {
   const { id, name, maxCapacity, regularPrice, discount, image } = cabin;
-  console.log(SUPABASE_BASE_URL + image);
-
+  
   return (
     <div className="flex border-primary-800 border">
       <div className="flex-1 relative">

@@ -41,13 +41,12 @@ export async function getCabins() {
 
 // Guests are uniquely identified by their email address
 export async function getGuest(email) {
-  
-  const res = await fetch(`${BACKEND_ENDPOINT}/guest`,{
-    method: 'POST',
+  const res = await fetch(`${BACKEND_ENDPOINT}/guest`, {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({email})
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email }),
   });
 
   if (!res.ok) {
@@ -58,12 +57,12 @@ export async function getGuest(email) {
   return data?.result ?? null;
 }
 export async function createGuest(newGuest) {
-  const res = await fetch(`${BACKEND_ENDPOINT}/pushGuests`,{
-    method: 'POST',
+  const res = await fetch(`${BACKEND_ENDPOINT}/pushGuests`, {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(newGuest)
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(newGuest),
   });
 
   if (!res.ok) {
@@ -118,7 +117,6 @@ export async function getBookedDatesByCabinId(cabinId) {
       pageSize: parseInt(process.env.PAGINATION_PAGE_SIZE),
     }),
   });
- 
 
   if (!res.ok) {
     throw new Error("Cabins could not be loaded");
@@ -130,9 +128,7 @@ export async function getBookedDatesByCabinId(cabinId) {
 
 export async function getSettings() {
   try {
-    const res = await fetch(
-      "http://hk-alb2-47b2d838154cd58f.elb.ap-south-1.amazonaws.com/settings"
-    );
+    const res = await fetch(`${BACKEND_ENDPOINT}/settings`);
     const countries = await res.json();
     return countries?.result ?? {};
   } catch {
@@ -142,9 +138,7 @@ export async function getSettings() {
 
 export async function getCountries() {
   try {
-    const res = await fetch(
-      "http://hk-alb2-47b2d838154cd58f.elb.ap-south-1.amazonaws.com/getCountries"
-    );
+    const res = await fetch(`${BACKEND_ENDPOINT}/getCountries`);
     const countries = await res.json();
     return countries?.result ?? [];
   } catch {
@@ -154,8 +148,6 @@ export async function getCountries() {
 
 /////////////
 // CREATE
-
-
 
 export async function createBooking(newBooking) {
   const { data, error } = await supabase

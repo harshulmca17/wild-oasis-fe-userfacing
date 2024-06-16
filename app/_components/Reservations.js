@@ -15,17 +15,12 @@ export default async function Reservations({ cabin }) {
 
   return (
     <div className="grid grid-cols-2 border border-primary-800 min-h-[400px]">
-       <DateSelector
-            bookedDate={bookings}
-            settings={settings}
-            cabin={cabin}
-          />
+      <DateSelector bookings={bookings} settings={settings} cabin={cabin} />
       {!session ? (
         <LoginMessage />
       ) : (
         <>
           {" "}
-         
           <ReservationForm cabin={cabin} user={session?.user} />
         </>
       )}

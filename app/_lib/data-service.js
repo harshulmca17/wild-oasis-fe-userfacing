@@ -1,4 +1,5 @@
 import { eachDayOfInterval } from "date-fns";
+import { revalidatePath } from "next/cache";
 
 /////////////
 // GET
@@ -73,18 +74,12 @@ export async function createGuest(newGuest) {
   return data?.result ?? null;
 }
 export async function getBooking(id) {
-  const { data, error, count } = await supabase
-    .from("bookings")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-  if (error) {
-    console.error(error);
-    throw new Error("Booking could not get loaded");
+  const res = await fetch(`${BACKEND_ENDPOINT}/booking/${id}`);
+  if (!res.ok) {
+    throw new Error("Booking could not be loaded");
   }
-
-  return data;
+  const data = await res.json();
+  return data?.result ?? null;
 }
 
 export async function getBookings(guestId) {
@@ -113,6 +108,27 @@ export async function getBookedDatesByCabinId(cabinId) {
     },
     body: JSON.stringify({
       cabinId: parseInt(cabinId),
+      page: parseInt(1),
+      pageSize: parseInt(process.env.PAGINATION_PAGE_SIZE),
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error("Cabins could not be loaded");
+  }
+
+  const data = await res.json();
+
+  return data?.result?.bookings ?? [];
+}
+export async function getBookedDatesByGuestId(guestId) {
+  const res = await fetch(`${BACKEND_ENDPOINT}/getBookingsByGuestId`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      guestId: parseInt(guestId),
       page: parseInt(1),
       pageSize: parseInt(process.env.PAGINATION_PAGE_SIZE),
     }),
@@ -170,44 +186,55 @@ export async function createBooking(newBooking) {
 
 // The updatedFields is an object which should ONLY contain the updated data
 export async function updateGuest(id, updatedFields) {
-  const { data, error } = await supabase
-    .from("guests")
-    .update(updatedFields)
-    .eq("id", id)
-    .select()
-    .single();
+  try {
+    console.log({ id, ...updatedFields });
+    const res = await fetch(`${BACKEND_ENDPOINT}/updateGuests`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id,
+        ...updatedFields,
+      }),
+    });
+    const response = await res.json();
 
-  if (error) {
-    console.error(error);
-    throw new Error("Guest could not be updated");
+    revalidatePath("/account/profile");
+  } catch {
+    throw new Error("Could not fetch countries");
   }
-  return data;
 }
 
-export async function updateBooking(id, updatedFields) {
-  const { data, error } = await supabase
-    .from("bookings")
-    .update(updatedFields)
-    .eq("id", id)
-    .select()
-    .single();
+export async function updateBooking(updatedFields) {
+  try {
+    const res = await fetch(`${BACKEND_ENDPOINT}/updateBookingDetails`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedFields),
+    });
+    const response = await res.json();
 
-  if (error) {
-    console.error(error);
-    throw new Error("Booking could not be updated");
+    revalidatePath(`/account/reservations/edit/${updatedFields.id}`);
+    revalidatePath("/account/reservations");
+  } catch {
+    throw new Error("Could not fetch countries");
   }
-  return data;
 }
 
 /////////////
 // DELETE
 
 export async function deleteBooking(id) {
-  const { data, error } = await supabase.from("bookings").delete().eq("id", id);
+  try {
+    const res = await fetch(`${BACKEND_ENDPOINT}/deleteBooking/${id}`);
 
-  if (error) {
-    console.error(error);
-    throw new Error("Booking could not be deleted");
+    const response = await res.json();
+
+    revalidatePath("/account/reservations");
+  } catch {
+    throw new Error("Error while Deleting ");
   }
-  return data;
 }

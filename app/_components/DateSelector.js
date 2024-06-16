@@ -4,6 +4,7 @@ import {
   differenceInDays,
   isPast,
   isSameDay,
+  isToday,
   isWithinInterval,
 } from "date-fns";
 import { useState } from "react";
@@ -51,7 +52,8 @@ function DateSelector({ settings, cabin, bookings }) {
         captionLayout="dropdown"
         numberOfMonths={2}
         disabled={(curDate) =>
-          isPast(curDate) || bookings.some((date) => isSameDay(date, curDate))
+          (isPast(curDate) && !isToday(curDate)) ||
+          bookings.some((date) => isSameDay(date, curDate))
         }
       />
 

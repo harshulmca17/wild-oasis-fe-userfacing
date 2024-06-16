@@ -1,14 +1,48 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { auth, signIn, signOut } from "./auth";
 import {
+  createBookingApi,
   deleteBooking,
   getBookedDatesByGuestId,
   getBooking,
   updateBooking,
   updateGuest,
 } from "./data-service";
+import { redirect } from "next/dist/server/api-utils";
 
+export async function createBooking(bookingData, formData) {
+  try {
+    const session = await auth();
+    if (!session) throw new Error("You must be logged in....");
+
+    const newBooking = {
+      ...bookingData,
+      guestId: session.user.guestId,
+      numGuests: Number(formData.get("numGuests")),
+      observations: formData.get("observations").slice(0, 1000),
+      totalPrice: Number(bookingData.cabinPrice),
+      extraPrice: 0,
+      status: "unconfirmed",
+      isPaid: false,
+      hasBreakfast: false,
+    };
+
+    console.log(newBooking);
+    createBookingApi(newBooking);
+    revalidatePath(`/cabins/${bookingData.cabinId}`);
+    redirect(200, "/cabins/thankyou");
+    // const booking = await createBooking(guestId, {
+    //   ...bookingData,
+    //   userId: user.uid,
+    // });
+    // return booking;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
 export async function updateProfile(formData) {
   const session = await auth();
   if (!session) throw new Error("You must be logged in....");

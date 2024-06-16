@@ -1,5 +1,6 @@
 import { eachDayOfInterval } from "date-fns";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/dist/server/api-utils";
 
 /////////////
 // GET
@@ -165,20 +166,19 @@ export async function getCountries() {
 /////////////
 // CREATE
 
-export async function createBooking(newBooking) {
-  const { data, error } = await supabase
-    .from("bookings")
-    .insert([newBooking])
-    // So that the newly created object gets returned!
-    .select()
-    .single();
-
-  if (error) {
-    console.error(error);
+export async function createBookingApi(newBooking) {
+  const res = await fetch(`${BACKEND_ENDPOINT}/pushBookings`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(newBooking),
+  });
+  if (!res.ok) {
     throw new Error("Booking could not be created");
   }
-
-  return data;
+  
+  return await res.json();
 }
 
 /////////////
